@@ -33,8 +33,8 @@ dirwalk [dir] [options]
 ## Установка
 Для сборки проекта используется `Makefile`.
 ```sh
-git clone https://github.com/your_username/dirwalk.git
-cd dirwalk
+git clone https://github.com/hechert0/OSiS.git
+cd OSiS/lab01
 make
 ```
 
@@ -77,5 +77,5 @@ lab01/
 Программа разработана в соответствии с POSIX-стандартами и **не использует специфичных возможностей Linux**. Должна работать на любых Unix-подобных системах.
 
 ## Авторы
-- [hechert0](https://github.com/your_username)
+- [hechert0](https://github.com/hechert0)
 
