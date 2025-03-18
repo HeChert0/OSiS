@@ -18,7 +18,7 @@ RELEASE_TARGET = $(RELEASE_DIR)/dirwalk
 
 all: release
 
-$(BUILD_DIR) $(DEBUG_DIR) $(RELEASE_DIR) $(TEST_DIR):
+$(BUILD_DIR) $(DEBUG_DIR) $(RELEASE_DIR):
 	mkdir -p $@
 
 $(DEBUG_TARGET): $(DEBUG_OBJ) | $(DEBUG_DIR)
@@ -41,7 +41,8 @@ clean:
 	rm -f $(RELEASE_DIR)/*.o $(RELEASE_DIR)/*.d $(RELEASE_TARGET)
 	rm -f $(TEST_DIR)/*
 
-test: debug release | $(TEST_DIR)
+test: debug release
+	mkdir -p $(TEST_DIR)
 	ln -sf ../$(DEBUG_TARGET) $(TEST_DIR)/dirwalk-debug
 	ln -sf ../$(RELEASE_TARGET) $(TEST_DIR)/dirwalk-release
 

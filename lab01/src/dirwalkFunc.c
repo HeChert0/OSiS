@@ -1,5 +1,4 @@
-#include "dirwalk.h"
-
+#include "dirwalkFunc.h"
 
 void walk_directory(const char *path, const Options *options, int filter) {
     struct dirent **namelist;
@@ -21,7 +20,6 @@ void walk_directory(const char *path, const Options *options, int filter) {
         char full_path[PATH_MAX];
         size_t len = strlen(path);
         if (strcmp(path, ".") == 0) {
-            /* Если базовый путь ".", то для дочерних файлов используем префикс "./" */
             snprintf(full_path, sizeof(full_path), "./%s", entry->d_name);
         } else {
             if (len > 0 && path[len - 1] == '/')

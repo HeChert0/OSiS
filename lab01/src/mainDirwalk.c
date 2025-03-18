@@ -1,8 +1,8 @@
-#include "dirwalk.h"
+#include "dirwalkFunc.h"
 
 int main(int argc, char *argv[]) {
 	Options options = {0, 0, 0, 0};
-	int filter = 0; // флаг, указывающий, что пользователь указал хотя бы одну опцию фильтрации
+	int filter = 0;
 	const char *path = ".";
 
 	setlocale(LC_COLLATE, "");
@@ -25,12 +25,6 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	/* Если фильтрация не включена, то выводим все типы файлов */
-	if (!filter) {
-		/* Оставляем флаги выключенными, и условие ниже даст "истину" для всех файлов */
-	}
-
-	/* Выводим начальный каталог, если требуется (аналогично find) */
 	printf("%s\n", path);
 
 	walk_directory(path, &options, filter);
