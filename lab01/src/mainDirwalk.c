@@ -25,7 +25,9 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	printf("%s\n", path);
+	if (options.show_dirs || !filter) {
+		printf("%s\n", path);
+	}
 
 	walk_directory(path, &options, filter);
 
