@@ -7,4 +7,3 @@ test/
 *.o
 *.d
 Debug/
-./build

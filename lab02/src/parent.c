@@ -44,7 +44,7 @@ char **CreateChildEnv() {
     char line[256];
 
     while (fgets(line, sizeof(line), env_file) != NULL && count < MAX_ENV_VARS) {
-        line[strcspn(line, "\r\n")] = '\0'; // Убираем перевод строки
+        line[strcspn(line, "\r\n")] = '\0';
         if (line[0] == '\0') continue;
 
         char *value = getenv(line);
@@ -145,6 +145,20 @@ void StartChild(char **child_env, char mode) {
 }
 
 int main(int argc, char *argv[], char *envp[]) {
+
+    if (setenv("LC_COLLATE", "C", 1) != 0) {
+        perror("Ошибка установки LC_COLLATE");
+        exit(EXIT_FAILURE);
+    }
+
+    char hostname[256];
+    if (!getenv("HOSTNAME")) {
+        if (gethostname(hostname, sizeof(hostname)) == 0) {
+            setenv("HOSTNAME", hostname, 1);
+        } else {
+            perror("Ошибка получения HOSTNAME");
+        }
+    }
 
     setlocale(LC_ALL, "C");
     PrintEnvSorted();
