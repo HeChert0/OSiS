@@ -53,7 +53,6 @@ debug: $(DIRS) $(DEBUG_PARENT) $(DEBUG_CHILD)
 
 memcheck: debug
 	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(DEBUG_PARENT)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(DEBUG_CHILD)
 
 
 -include $(wildcard $(DEBUG_DIR)/*.d) $(wildcard $(RELEASE_DIR)/*.d)

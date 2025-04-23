@@ -64,10 +64,10 @@ int main() {
 
         received_signal = false;
 
-        if (i >= 5 && can_print) {
+        if (i >= 6 && can_print) {
             alarm(0);
 
-            union sigval info;
+            union sigval info = { .sival_int = getpid() };
             info.sival_int = getpid();
             while (!received_signal) {
                 sigqueue(getppid(), SIGUSR1, info);

@@ -11,14 +11,12 @@
 
 #define CAPACITY 8
 
-//доч
 typedef struct {
     pid_t pid;
     char name[CAPACITY * 2];
     bool is_running;
 } ProcessInfo;
 
-//для массива дочерних
 size_t child_processes_size = 0;
 size_t child_processes_capacity = CAPACITY;
 ProcessInfo *child_processes = NULL;
@@ -34,8 +32,8 @@ void DeleteAllChild();
 void CleanExit();
 void WaitChild();
 void print_menu();
-void StartChild(int index);
-void StopChild(int index);
+void StartChild(size_t index);
+void StopChild(size_t index);
 
 
 
@@ -92,14 +90,13 @@ int main() {
     return 0;
 }
 
-//ыг2
-void StartChild(int index) {
-    if (index < 0 || index >= child_processes_size) {
+void StartChild(size_t index) {
+    if (index >= child_processes_size) {
         printf("Invalid index\n");
         return;
     }
     pid_t pid = child_processes[index].pid;
-    union sigval info;
+    union sigval info = { .sival_int = 0 };
     info.sival_int = 0;
 
     sigqueue(pid, SIGUSR2, info);
@@ -108,13 +105,13 @@ void StartChild(int index) {
 }
 
 
-void StopChild(int index) {
-    if (index < 0 || index >= child_processes_size) {
+void StopChild(size_t index) {
+    if (index >= child_processes_size) {
         printf("Invalid index\n");
         return;
     }
     pid_t pid = child_processes[index].pid;
-    union sigval info;
+    union sigval info = { .sival_int = 0 };
     info.sival_int = 0;
 
     sigqueue(pid, SIGUSR1, info);
@@ -156,7 +153,7 @@ void HandleSignal(int signo, siginfo_t *info, void *context) {
         pid_t child_pid = info->si_value.sival_int;
         printf("Parent: Received SIGUSR1 from child %d\n", child_pid);
 
-        union sigval info_resume;
+        union sigval info_resume = { .sival_int = 0 };
         info_resume.sival_int = 0;
         sigqueue(child_pid, SIGUSR2, info_resume);
     } else if (signo == SIGUSR2) {
@@ -239,9 +236,16 @@ void ListChild() {
 
 
 void DeleteAllChild() {
+    sigset_t block_mask, old_mask;
+    sigemptyset(&block_mask);
+    sigaddset(&block_mask, SIGCHLD);
+    sigprocmask(SIG_BLOCK, &block_mask, &old_mask);
+
     while (child_processes_size > 0) {
         DeleteLastChild();
     }
+
+    sigprocmask(SIG_SETMASK, &old_mask, NULL);
     printf("All children deleted\n");
 }
 
