@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -pedantic -MMD -MP -g -Wno-unused-parameter -Wno-unused-variable -D_POSIX_C_SOURCE=200809L
 
-SRC_DIR = src
+SRC_DIR = src/5.1
 BUILD_DIR = build
 DEBUG_DIR = $(BUILD_DIR)/debug
 RELEASE_DIR = $(BUILD_DIR)/release

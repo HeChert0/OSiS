@@ -10,7 +10,7 @@
 #include <string.h>
 
 #define QUEUE_KEY       0x1234
-#define MAX_QUEUE_SIZE  4
+#define MAX_QUEUE_SIZE  10
 #define SEM_KEY         0x5678
 
 typedef struct __attribute__((packed)) {
@@ -21,7 +21,7 @@ typedef struct __attribute__((packed)) {
 } Message;
 
 typedef struct {
-    Message   buffer[MAX_QUEUE_SIZE];  // inline storage in shared memory
+    Message   buffer[MAX_QUEUE_SIZE];
     int       head;
     int       tail;
     int       added_count;
@@ -36,4 +36,4 @@ void     queue_pop(Queue* q, Message* out_msg);
 void     queue_destroy(Queue* q);
 uint16_t calculate_hash(const Message* msg);
 
-#endif  // QUEUE_H
+#endif

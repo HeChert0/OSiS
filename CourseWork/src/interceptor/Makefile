@@ -7,7 +7,7 @@ TARGET = $(OUTDIR)/libtrash.so
 all: $(TARGET)
 
 $(TARGET): trash_unlink.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+	@unset LD_PRELOAD && $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 clean:
 	rm -f $(TARGET)

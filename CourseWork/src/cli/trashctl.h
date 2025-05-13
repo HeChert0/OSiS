@@ -7,9 +7,9 @@
 #include <limits.h>
 
 typedef struct {
-    char id[64];           // "1746382161_30886"
+    char id[64];
     char original_path[PATH_MAX];
-    char deleted_time[32]; // "2025-05-04T21:09:21"
+    char deleted_time[32];
     off_t size;
 } TrashEntry;
 

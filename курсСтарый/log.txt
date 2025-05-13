@@ -1,5 +1,0 @@
-[2025-04-27 16:39:02] Добавлено в корзину: /home/hechert/.local/bin/test.txt
-[2025-04-27 16:39:17] Восстановлено из корзины: /home/hechert/tar_working_dir/Маслаков
-[2025-04-27 16:47:41] Корзина очищена автоматически: 
-[2025-04-27 16:55:25] Добавлено в корзину: /home/hechert/tar_working_dir/Маслаков Н.А./CourseWork/test2.txt
-[2025-04-27 16:55:32] Восстановлено: /home/hechert/tar_working_dir/Маслаков Н.А./CourseWork/test2.txt

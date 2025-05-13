@@ -7,13 +7,11 @@
 
 int cmd_restore(const char *base, const char *id) {
     char info_path[PATH_MAX], file_path[PATH_MAX];
-    // Пути
     snprintf(info_path, sizeof(info_path),
              "%s/.trash/info/%s.info", base, id);
     snprintf(file_path, sizeof(file_path),
              "%s/.trash/files/%s", base, id);
 
-    // Читаем original_path из info
     FILE *fp = fopen(info_path, "r");
     if (!fp) {
         fprintf(stderr, "No such entry: %s\n", id);
@@ -32,7 +30,6 @@ int cmd_restore(const char *base, const char *id) {
         return 1;
     }
 
-    // Создаём пути к директории назначения, если нужно
     char *dup = strdup(original);
     char *dir = dirname(dup);
     if (access(dir, F_OK) != 0) {
@@ -42,16 +39,13 @@ int cmd_restore(const char *base, const char *id) {
     }
     free(dup);
 
-    // Переименовываем обратно
     if (rename(file_path, original) != 0) {
         perror("restore failed");
         return 1;
     }
 
-    // Удаляем info-файл
     if (unlink(info_path) != 0) {
         perror("remove info failed");
-        // но файл уже возвращён
     }
 
     printf("Restored %s → %s\n", id, original);

@@ -12,19 +12,16 @@
 #include <limits.h>
 #include <fcntl.h>
 
-// Форматы директорий относительно TRASH_BASE
 #define TRASH_DIR_FMT   "%s/.trash"
 #define TRASH_FILES_FMT "%s/.trash/files"
 #define TRASH_INFO_FMT  "%s/.trash/info"
 
-// Прототипы оригинальных функций
 typedef int (*orig_unlink_fn)(const char *);
 typedef int (*orig_unlinkat_fn)(int, const char *, int);
 
 static orig_unlink_fn   real_unlink   = NULL;
 static orig_unlinkat_fn real_unlinkat = NULL;
 
-// Инициализация реальных функций через dlsym
 static void init_real_funcs(void) {
     if (!real_unlink) {
         real_unlink = (orig_unlink_fn)dlsym(RTLD_NEXT, "unlink");
@@ -34,13 +31,11 @@ static void init_real_funcs(void) {
     }
 }
 
-// Узнать базовую директорию корзины
 static const char *get_trash_base(void) {
     const char *env = getenv("TRASH_BASE");
     return env ? env : ".";
 }
 
-// Убедиться, что каталоги корзины существуют
 static void ensure_directories(void) {
     char path[PATH_MAX];
     const char *base = get_trash_base();
@@ -55,14 +50,12 @@ static void ensure_directories(void) {
     mkdir(path, 0755);
 }
 
-// Выделить расширение файла (включая точку), или NULL
 static char *get_file_extension(const char *filename) {
     const char *dot = strrchr(filename, '.');
     if (!dot || dot == filename) return NULL;
     return strdup(dot);
 }
 
-// Сгенерировать уникальное имя: "<epoch>_<rand>[.<ext>]"
 static char *generate_unique_name(const char *orig_name) {
     static char buf[256];
     time_t now = time(NULL);
@@ -78,7 +71,6 @@ static char *generate_unique_name(const char *orig_name) {
     return buf;
 }
 
-// Записать файл метаданных: "$base/.trash/info/<name>.info"
 static int write_info_file(const char *newname, const char *orig_path, off_t size) {
     char info_path[PATH_MAX];
     const char *base = get_trash_base();
@@ -101,16 +93,21 @@ static int write_info_file(const char *newname, const char *orig_path, off_t siz
     return 0;
 }
 
-// Основная логика перемещения
 static int move_to_trash(const char *abs_path) {
     ensure_directories();
 
     struct stat st;
+    char orig_real[PATH_MAX];
+    if (realpath(abs_path, orig_real) == NULL) {
+
+        strncpy(orig_real, abs_path, sizeof(orig_real));
+        orig_real[sizeof(orig_real)-1] = '\0';
+    }
+
     if (stat(abs_path, &st) != 0) {
         return -1;
     }
 
-    // Если уже в корзине — удаляем настоящим unlink
     {
         char trash_root[PATH_MAX];
         const char *base = get_trash_base();
@@ -120,11 +117,9 @@ static int move_to_trash(const char *abs_path) {
         }
     }
 
-    // Новый уникальный суффикс
     const char *base_name = basename((char *)abs_path);
     char *newname = generate_unique_name(base_name);
 
-    // Куда переместить
     char dest_path[PATH_MAX];
     const char *base = get_trash_base();
     snprintf(dest_path, sizeof(dest_path),
@@ -135,25 +130,22 @@ static int move_to_trash(const char *abs_path) {
         return -1;
     }
 
-    write_info_file(newname, abs_path, st.st_size);
+    write_info_file(newname, orig_real, st.st_size);
     return 0;
 }
 
-// Вспомог: получить абсолютный путь из dirfd+name
 static int build_abs_path(int dirfd, const char *pathname, char *out, size_t outlen) {
     if (pathname[0] == '/') {
-        // уже абсолютный
         strncpy(out, pathname, outlen);
         return 0;
     }
     if (dirfd == AT_FDCWD) {
-        // относительно cwd
         char cwd[PATH_MAX];
         if (!getcwd(cwd, sizeof(cwd))) return -1;
         snprintf(out, outlen, "%s/%s", cwd, pathname);
         return 0;
     }
-    // иначе пытаться прочитать /proc/self/fd/dirfd
+
     char linkpath[64];
     snprintf(linkpath, sizeof(linkpath), "/proc/self/fd/%d", dirfd);
     char dirpath[PATH_MAX];
@@ -164,11 +156,9 @@ static int build_abs_path(int dirfd, const char *pathname, char *out, size_t out
     return 0;
 }
 
-// Переопределение unlink()
 int unlink(const char *pathname) {
     init_real_funcs();
 
-    // постороим абсолютный путь
     char abs_path[PATH_MAX];
     if (build_abs_path(AT_FDCWD, pathname, abs_path, sizeof(abs_path)) == 0) {
         if (move_to_trash(abs_path) == 0) {
@@ -178,10 +168,8 @@ int unlink(const char *pathname) {
     return real_unlink(pathname);
 }
 
-// Переопределение unlinkat()
 int unlinkat(int dirfd, const char *pathname, int flags) {
     init_real_funcs();
-    // если это не удаление директории
     if (!(flags & AT_REMOVEDIR)) {
         char abs_path[PATH_MAX];
         if (build_abs_path(dirfd, pathname, abs_path, sizeof(abs_path)) == 0) {

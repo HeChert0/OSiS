@@ -10,7 +10,7 @@
 #include <string.h>
 #include "queue.h"
 
-#define MAX_PROCS 3
+#define MAX_PROCS 4
 
 volatile sig_atomic_t running = 1;
 int prod_count = 0, cons_count = 0;
@@ -132,34 +132,48 @@ void consumer_task() {
 }
 
 void create_producer() {
-    if (prod_count < MAX_PROCS) {
-        pid_t pid = fork();
-        if (pid == 0) {
-            setup_signals();
-            producer_task();
-            exit(0);
-        }
-        else if (pid > 0)
-        producers[prod_count++] = pid;
+    if (prod_count >= MAX_PROCS) {
+        printf("Max producers reached!\n");
+        return;
     }
-    else
-        printf("Producers are fulled!");
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        setup_signals();
+        producer_task();
+        exit(0);
+    }
+    if (pid == -1) {
+        perror("fork");
+        return;
+    }
+    else {
+        producers[prod_count++] = pid;
+        printf("Producer %d created\n", pid);
+    }
 }
 
 void create_consumer() {
-    if (cons_count < MAX_PROCS) {
-        pid_t pid = fork();
-        if (pid == 0) {
-            setup_signals();
-            consumer_task();
-            exit(0); }
-        else if (pid > 0)
-            consumers[cons_count++] = pid;
+    if (cons_count >= MAX_PROCS) {
+        printf("Max consumers reached!\n");
+        return;
     }
-    else
-        printf("Producers are fulled!");
-}
 
+    pid_t pid = fork();
+    if (pid == 0) {
+        setup_signals();
+        consumer_task();
+        exit(0);
+    }
+    if (pid == -1) {
+        perror("fork");
+        return;
+    }
+    else {
+        consumers[cons_count++] = pid;
+        printf("Consumer %d created\n", pid);
+    }
+}
 
 void remove_last_producer() {
     if (prod_count == 0) return;

@@ -1,0 +1,11 @@
+*.vpj
+*.vpw
+*.vpwhistuxml
+*.vtg
+dirwalk
+test/
+*.o
+*.d
+Debug/
+.trash/
+

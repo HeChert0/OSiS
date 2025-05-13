@@ -18,17 +18,14 @@ int cmd_list(const char *base) {
 
     struct dirent *entry;
     while ((entry = readdir(d)) != NULL) {
-        // выбираем только файлы *.info
         size_t len = strlen(entry->d_name);
         if (len < 6 || strcmp(entry->d_name + len - 5, ".info") != 0)
             continue;
 
-        // id = имя файла без суффикса ".info"
         char id[64];
         strncpy(id, entry->d_name, len - 5);
         id[len - 5] = '\0';
 
-        // открываем info-файл
         char path[PATH_MAX*2];
         snprintf(path, sizeof(path), "%s/%s", info_dir, entry->d_name);
         FILE *fp = fopen(path, "r");
