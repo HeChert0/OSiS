@@ -94,6 +94,11 @@ void create_consumer() {
 
 void remove_last_producer() {
     if (prod_count == 0) return;
+
+    pthread_mutex_lock(&queue->mutex);
+    pthread_cond_broadcast(&queue->not_full);
+    pthread_mutex_unlock(&queue->mutex);
+
     pthread_cancel(producers[--prod_count]);
     pthread_join(producers[prod_count], NULL);
     printf("[Main] Producer thread removed (id=%lu)\n", producers[prod_count]);
@@ -101,15 +106,26 @@ void remove_last_producer() {
 
 void remove_last_consumer() {
     if (cons_count == 0) return;
+
+    pthread_mutex_lock(&queue->mutex);
+    pthread_cond_broadcast(&queue->not_empty);
+    pthread_mutex_unlock(&queue->mutex);
+
     pthread_cancel(consumers[--cons_count]);
     pthread_join(consumers[cons_count], NULL);
     printf("[Main] Consumer thread removed (id=%lu)\n", consumers[cons_count]);
 }
 
 void remove_all() {
-    while (prod_count > 0)   remove_last_producer();
-    while (cons_count > 0)   remove_last_consumer();
+    pthread_mutex_lock(&queue->mutex);
+    pthread_cond_broadcast(&queue->not_empty);
+    pthread_cond_broadcast(&queue->not_full);
+    pthread_mutex_unlock(&queue->mutex);
+
+    while (prod_count > 0) remove_last_producer();
+    while (cons_count > 0) remove_last_consumer();
 }
+
 
 void print_status() {
     pthread_mutex_lock(&queue->mutex);

@@ -29,7 +29,7 @@ typedef struct {
 } Queue;
 
 Queue*   queue_init();
-void     queue_push(Queue* q, Message* msg);
+int     queue_push(Queue* q, Message* msg);
 Message* queue_pop(Queue* q);
 void     queue_resize_increase(Queue* q);
 void     queue_resize_decrease(Queue* q);
