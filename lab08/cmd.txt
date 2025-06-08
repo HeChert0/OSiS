@@ -1,0 +1,6 @@
+ECHO first
+ECHO second
+LIST
+CD t1
+LIST
+QUIT
